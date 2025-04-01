@@ -12,6 +12,7 @@ const fileRouter=require('./routes/fileRoute');
 const todaysalesRouter=require('./routes/todaysalesRoute');
 const totalinvoiceRouter=require('./routes/totalinvoiceRoute');
 const categoryRouter=require('./routes/categoryRoute');
+const itemRouter=require('./routes/itemRoute');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/v1/file",fileRouter);
 app.use("/api/v1/today_sales",todaysalesRouter);
 app.use("/api/v1/total_invoice",totalinvoiceRouter);
 app.use("/api/v1/category",categoryRouter);
+app.use("/api/v1/item",itemRouter);
 
 //Error Handling
 app.use((err,req,res,next) => {

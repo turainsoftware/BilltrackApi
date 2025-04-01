@@ -1,4 +1,3 @@
-const { validationResult } = require('express-validator');
 const db = require('../config/dbConnection');
 const web_services = require('../services/web_services'); 
 const { generateToken } = require('../services/JwtService');
@@ -80,7 +79,7 @@ const verify_otp = async (req, res) => {
 
         const userOtp = userDetails[0].mobile_otp;
 
-        if (userOtp !== Number(otp)) {
+        if (userOtp !== otp) {
             return res.json({ status: false, message: 'Invalid OTP.' });
         }
         const token=generateToken({id: userDetails[0].user_id,phoneNumber: userDetails[0].contact_no1})

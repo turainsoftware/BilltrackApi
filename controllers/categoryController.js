@@ -1,6 +1,5 @@
 const db = require("../config/dbConnection");
-// const multer = require("multer");
-// const path = require("path");
+
 
 const get_category_list_details = async (req, res) => {
   try {
@@ -21,9 +20,8 @@ const get_category_list_details = async (req, res) => {
 
     const company_name_id = results[0].company_name_id;
 
-    // Fetch invoices for the financial year
     const category_list_query = `
-            SELECT service_category,hsn_code,image,gst_per,active_status
+            SELECT service_category_id,service_category,hsn_code,image,gst_per,active_status
             FROM service_category 
             WHERE company_name_id = ? 
             AND active_status = 1`;
@@ -151,7 +149,51 @@ const add_category = async (req, res) => {
     }
 };
 
-  
+
+const get_service_category_by_id = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+      const query = `
+          SELECT service_category_id, service_category, hsn_code, image, gst_per, active_status
+          FROM service_category
+          WHERE service_category_id = ?`;
+
+      const [category] = await db.query(query, [id]);
+
+      if (category.length === 0) {
+          return res.status(404).json({ status: false, message: "Category not found" });
+      }
+
+      res.status(200).json(
+          category[0]
+      );
+  } catch (error) {
+      console.error("Error fetching category:", error);
+      res.status(500).json({
+          status: false,
+          message: "Internal Server Error",
+      });
+  }
+};
+
+
+
+const update= async (req,res)=>{
+  const id = req.params.id; 
+    const data=req.body
+    console.log(data)
+
+    try{
+      const query="update service_category set service_category= ?,hsn_code= ?,gst_per= ?,active_status= ? where service_category_id=?"
+      console.log(query)
+      await db.query(query,[data.service_category,data.hsn_code,data.gst_per,data.active_status,id])
+      res.json({status: true,message: "Updated Successfully"}).status(200)
+    }catch(err){
+      console.error(err);
+      res.json({status: false,message: "Something went wrong"}).status(500)
+    }
+}
   
 
-module.exports = { get_category_list_details, add_category };
+module.exports = { get_category_list_details, add_category,get_service_category_by_id,update };
