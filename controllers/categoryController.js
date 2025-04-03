@@ -182,7 +182,6 @@ const get_service_category_by_id = async (req, res) => {
 const update= async (req,res)=>{
   const id = req.params.id; 
     const data=req.body
-    console.log(data)
 
     try{
       const query="update service_category set service_category= ?,hsn_code= ?,gst_per= ?,active_status= ? where service_category_id=?"
