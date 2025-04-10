@@ -32,6 +32,7 @@ app.use("/api/v1/total_invoice",totalinvoiceRouter);
 app.use("/api/v1/category",categoryRouter);
 app.use("/api/v1/item",itemRouter);
 app.use("/api/v1/profile",profileRouter);
+app.get("/",(req,res) => res.send('Hello World!'));
 
 //Error Handling
 app.use((err,req,res,next) => {
