@@ -41,32 +41,7 @@ const get_category_list_details = async (req, res) => {
   }
 };
 
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "../billing_software_backend_api/media/category");
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, Date.now() + path.extname(file.originalname));
-//   },
-// });
 
-// const upload = multer({
-//   storage: storage,
-//   limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
-//   fileFilter: function (req, file, cb) {
-//     const allowedTypes = /jpeg|jpg|png|gif|svg|webp/;
-//     const extName = allowedTypes.test(
-//       path.extname(file.originalname).toLowerCase()
-//     );
-//     const mimeType = allowedTypes.test(file.mimetype);
-
-//     if (extName && mimeType) {
-//       return cb(null, true);
-//     } else {
-//       return cb(new Error("Only images are allowed!"));
-//     }
-//   },
-// }).single("txt_image");
 
 const add_category = async (req, res) => {
     try {
