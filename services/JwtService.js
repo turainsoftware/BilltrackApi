@@ -1,6 +1,7 @@
 const jwt=require('jsonwebtoken')
-const generateToken=({id,phoneNumber})=>{
-    const payload={id: id,phoneNumber: phoneNumber}
+const generateToken=({id,phoneNumber,company_name_id})=>{
+    const payload={id: id,phoneNumber: phoneNumber,company_name_id: company_name_id}
+    console.log(payload);
     const JWT_SECRET=process.env.JWT_SECRET
     const token=jwt.sign(payload,JWT_SECRET,{
         expiresIn: '24h'

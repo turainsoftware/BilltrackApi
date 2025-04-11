@@ -72,6 +72,8 @@ const verify_otp = async (req, res) => {
 
         // // Fetch user details
         const userDetails = await web_services.select_by_values('user', { contact_no1: phoneNumber });
+        // console.log(userDetails);
+        
 
         if (!userDetails || userDetails.length === 0) {
             return res.json({ status: false, message: 'User not found.' }).status(404);
@@ -82,7 +84,8 @@ const verify_otp = async (req, res) => {
         if (userOtp !== otp) {
             return res.json({ status: false, message: 'Invalid OTP.' });
         }
-        const token=generateToken({id: userDetails[0].user_id,phoneNumber: userDetails[0].contact_no1})
+        const token=generateToken({id: userDetails[0].user_id,phoneNumber: userDetails[0].contact_no1,company_name_id: userDetails[0].company_name_id})
+
         res.json({ status: true, token: token });
     } catch (error) {
         res.json({ status: false, message: error.message });

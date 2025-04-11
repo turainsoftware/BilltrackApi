@@ -5,7 +5,7 @@ const path = require("path");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "../billing_software_backend_api/media/items"); // Make sure this path exists
+    cb(null, "../billing_software_backend_api/media/items");
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -121,6 +121,7 @@ const add_item_details = async (req, res) => {
         txt_price,
         txt_gst_per,
         gst_cat_id,
+        description,
         hsn_code,
       } = req.body;
 
@@ -170,26 +171,35 @@ const add_item_details = async (req, res) => {
         price: txt_price,
         image: image,
         gst: txt_gst_per,
+        description: description,
         gst_category_id: gst_cat_id,
       };
 
       const insertQuery = `
-        INSERT INTO service_details (
-          company_name_id, service_category_id, service_name, image,
-          price, gst, gst_category_id
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `;
+  INSERT INTO service_details (
+    company_name_id,
+    service_category_id,
+    service_name,
+    image,
+    price,
+    gst,
+    gst_category_id,
+    description
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+`;
 
-      const [insertResult] = await db.query(insertQuery, [
-        data.company_name_id,
-        data.service_category_id,
-        data.service_name,
-        image,
-        data.price,
-        data.gst,
-        data.gst_category_id,
-      ]);
+const [insertResult] = await db.query(insertQuery, [
+  data.company_name_id,
+  data.service_category_id,
+  data.service_name,
+  image,
+  data.price,
+  data.gst,
+  data.gst_category_id,
+  data.description
+]);
+
 
       const service_details_id = insertResult.insertId;
 
@@ -212,8 +222,8 @@ const add_item_details = async (req, res) => {
       res.status(200).json({
         status: true,
         message: "Item details added successfully",
-        insertedId: insertResult.insertId,
-        imageUrl: image ? `/media/item/${image}` : null,
+        // insertedId: insertResult.insertId,
+        // imageUrl: image ? `/media/item/${image}` : null,
       });
     } catch (error) {
       res.status(500).json({
