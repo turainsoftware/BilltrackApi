@@ -287,6 +287,93 @@ const invoice_details_list = async (req, res) => {
     }
 };
 
+const shown_data_under_range = async (req, res) => {
+    try {
+        const user = req.user;
+        const id = parseInt(req.params.id);
+
+        if (!user || !user.id) {
+            return res.status(400).json({ status: false, message: "Invalid User Data" });
+        }
+
+        // Fetch user details
+        const query = "SELECT type, company_name_id FROM user WHERE user_id = ?";
+        const [results] = await db.query(query, [user.id]);
+
+        if (results.length === 0) {
+            return res.status(404).json({ status: false, message: "User not found" });
+        }
+
+        const { company_name_id } = results[0];
+
+        let dateCondition = "";
+        if (id === 1) {
+            dateCondition = "DATE(invoice_date) = CURDATE()"; // Today
+        } else if (id === 2) {
+            dateCondition = "DATE(invoice_date) = CURDATE() - INTERVAL 1 DAY"; // Yesterday
+        } else if (id === 3) {
+            dateCondition = `YEARWEEK(invoice_date, 1) = YEARWEEK(CURDATE(), 1)`; // This week
+        } else if (id === 4) {
+            dateCondition = `YEARWEEK(invoice_date, 1) = YEARWEEK(CURDATE() - INTERVAL 1 WEEK, 1)`; // Last week
+        } else if (id === 5) {
+            dateCondition = `MONTH(invoice_date) = MONTH(CURDATE()) AND YEAR(invoice_date) = YEAR(CURDATE())`; // This month
+        } else if (id === 6) {
+            dateCondition = `
+                QUARTER(invoice_date) = QUARTER(CURDATE()) - 1 AND YEAR(invoice_date) = YEAR(CURDATE())
+            `; // Last quarter
+        } else if (id === 7) {
+            dateCondition = `YEAR(invoice_date) = YEAR(CURDATE()) - 1`; // Last year
+        } else {
+            return res.status(400).json({ status: false, message: "Invalid filter ID" });
+        }
+
+        const invoice_list_query = `
+            SELECT cancel_status,
+                shop_invoice_id, 
+                invoice_number, 
+                DATE_FORMAT(invoice_date, '%Y-%m-%d') AS invoice_date, 
+                customer_name, 
+                contact_no,
+                user_id
+            FROM shop_invoice 
+            WHERE company_name_id = ? AND ${dateCondition}
+        `;
+
+        const [invoices] = await db.query(invoice_list_query, [company_name_id]);
+
+        for (let invoice of invoices) {
+            const total_amount_query = `
+                SELECT 
+                    SUM(price * qty) AS total_price, 
+                    SUM(service_discount) AS total_discount 
+                FROM shop_invoice_product 
+                WHERE shop_invoice_id = ?`;
+
+            const [total_amount_result] = await db.query(total_amount_query, [invoice.shop_invoice_id]);
+
+            const total_price = total_amount_result[0]?.total_price || 0;
+            const total_discount = total_amount_result[0]?.total_discount || 0;
+
+            invoice.total_amount = total_price - total_discount;
+            invoice.total_service_discount = total_discount;
+            invoice.actual_amount = total_price;
+        }
+
+        res.status(200).json({
+            invoices: invoices
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: error.message,
+        });
+    }
+};
+
+
+
+
 
 
 
@@ -298,4 +385,4 @@ const invoice_details_list = async (req, res) => {
 
   
 
-module.exports = { total_revenue, todays_sales, total_invoice, total_customer,invoice_details_list };
+module.exports = { total_revenue, todays_sales, total_invoice, total_customer,invoice_details_list,shown_data_under_range };
